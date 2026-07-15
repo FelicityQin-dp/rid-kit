@@ -4,6 +4,9 @@ from dflow.plugins.dispatcher import DispatcherExecutor
 from dflow import SlurmRemoteExecutor
 import os
 
+DEFAULT_SLICE_GROUP_SIZE = 10
+DEFAULT_SLICE_POOL_SIZE = 1
+
 
 def init_executor(
         executor_dict,
@@ -24,9 +27,22 @@ def init_executor(
         raise RuntimeError('unknown executor dict')   
 
 
+def get_template_slice_config(config_dict: Dict) -> Dict[str, int]:
+    """Extract dflow Slices scheduling options from a normalized resource dict."""
+    slice_config = config_dict.pop("template_slice_config", {}) or {}
+    group_size = int(slice_config.get("group_size", DEFAULT_SLICE_GROUP_SIZE))
+    pool_size = int(slice_config.get("pool_size", DEFAULT_SLICE_POOL_SIZE))
+    if group_size < 1:
+        raise ValueError("template_slice_config.group_size must be >= 1")
+    if pool_size < 1:
+        raise ValueError("template_slice_config.pool_size must be >= 1")
+    return {"group_size": group_size, "pool_size": pool_size}
+
+
 def normalize_resources(config_dict: Dict):
     template_dict = {}
     template_dict["template_config"] = config_dict.get("template_config", {})
+    template_dict["template_slice_config"] = config_dict.get("template_slice_config", {})
     template_dict["executor"] = config_dict.get("executor", None)
     if template_dict["executor"] is None:
         assert ("image" in template_dict["template_config"].keys()) and \
