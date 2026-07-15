@@ -1,0 +1,11 @@
+label_root=/personal/rid-reproduce/r17-interface/v1/result/label
+focus_iter=iter3
+scalar_threshold=10.0
+per_cv_threshold=[ 0.3283,  1.5346,  1.9974,  5.3589,  1.1576, 10.5455]
+
+n=40
+scalar_retention=0.875
+per_cv_retention=0.600
+
+median_abs_force=[ 2.9774,  5.0277,  4.038 ,  9.2563,  2.4592, 35.6303]
+median_std=[0.195 , 0.8557, 0.8857, 2.1098, 0.7062, 5.3044]

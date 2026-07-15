@@ -1,0 +1,25 @@
+flowchart TB
+  subgraph config [配置层]
+    MachineJSON["machine.json\ntemplate_slice_config"]
+    RidJSON["rid.json\nLabelMDConfig.std_threshold"]
+  end
+
+  subgraph workflow [Workflow 层]
+    PrepRiD["PrepRiD"]
+    LabelSuperOP["Label SuperOP"]
+    LabelStats["LabelStats"]
+  end
+
+  MachineJSON --> LabelSuperOP
+  RidJSON --> PrepRiD
+  PrepRiD -->|"List[float] std_threshold"| LabelSuperOP
+  LabelSuperOP --> LabelStats
+
+  subgraph ops [OP 层]
+    PrepLabel["prep-label\nSlices group/pool"]
+    RunLabel["run-label\nSlices group/pool"]
+  end
+
+  LabelSuperOP --> PrepLabel
+  LabelSuperOP --> RunLabel
+  RunLabel --> LabelStats

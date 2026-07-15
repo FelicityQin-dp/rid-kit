@@ -1,0 +1,7 @@
+flowchart LR
+  A["RunLabel\n生成 mf_info.out"] --> B["LabelStats\n读取 mf_std[i,j]"]
+  B --> C{"mf_std[i,j] > threshold[j] ?"}
+  C -->|任一 CV 超阈| D["丢弃样本 i\nOR 语义"]
+  C -->|全部 CV 未超阈| E["保留 cv_forces.out"]
+  D --> F["CollectData / Train"]
+  E --> F

@@ -1,0 +1,12 @@
+sequenceDiagram
+  participant MC as machine.json
+  participant NR as normalize_resources
+  participant LB as Label._label
+  participant DF as dflow Slices
+
+  MC->>NR: template_slice_config
+  NR->>LB: prep_config / run_config
+  LB->>LB: get_template_slice_config(prep)
+  LB->>LB: get_template_slice_config(run)
+  LB->>DF: prep-label group/pool
+  LB->>DF: run-label group/pool
