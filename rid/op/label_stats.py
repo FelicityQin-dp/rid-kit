@@ -26,7 +26,7 @@ class LabelStats(OP):
             {
                 "cv_forces": Artifact(List[Path]),
                 "mf_info": Artifact(List[Path]), 
-                "std_threshold": float  
+                "std_threshold": List[float]  
             }
         )
 
@@ -84,10 +84,20 @@ class LabelStats(OP):
                     mf_all_std_list.append(mf_std_list)
         mf_all_std_list = np.array(mf_all_std_list)
         
+        thresholds = op_in["std_threshold"]
+        if isinstance(thresholds, (int, float)):
+            thresholds = [float(thresholds)] * cv_dim
+        else:
+            thresholds = [float(value) for value in thresholds]
+        if len(thresholds) != cv_dim:
+            raise ValueError(
+                f"std_threshold length {len(thresholds)} != cv_dim {cv_dim}"
+            )
+
         higher_index = set()
         for i, row in enumerate(mf_all_std_list):
             for j, num in enumerate(row):
-                if num > op_in["std_threshold"]:                    
+                if num > thresholds[j]:
                     higher_index.add(i)
         higher_index_list = list(higher_index)
         print("higher index list", list(cv_forces_list[higher_index_list]))

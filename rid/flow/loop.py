@@ -45,7 +45,7 @@ class ReinforcedDynamicsLoop(Steps):
             "weights": InputParameter(type=Optional[Union[np.ndarray, List]]),
             "max_selection": InputParameter(type=int),
             "numb_cluster_threshold": InputParameter(type=float, value=30),
-            "std_threshold": InputParameter(type=float, value=5.0),
+            "std_threshold": InputParameter(type=List[float], value=[5.0]),
             "dt": InputParameter(type=float, value=0.02),
             "output_freq": InputParameter(type=float, value=2500),
             "slice_mode": InputParameter(type=str, value="gmx"),

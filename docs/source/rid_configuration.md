@@ -209,7 +209,7 @@ Set `"method": "restrained"` to use restrained MD as mean force calculator. The 
 
 * **`kappas`** `(List[int])` A list of force constants ($\kappa$) of harmonic restraints. The length of the list is equal to the number of CVs.
 
-* **`std_threshold`** `(float)`(default 5.0, the unit is consistent with the mean force) A number represents the mean force standard deviation threshold, beyond which the mean force is neglected and will not be used in the dataset for training free energy model. You should test labeling MD for your own system to determine an appropriate number for this threshold.
+* **`std_threshold`** `(float or List[float])` (default 5.0, the unit is consistent with the mean force) Threshold(s) for mean force standard deviation. A scalar is broadcast to all CVs. A list with length equal to the number of CVs allows different thresholds for different collective variables. If any CV of a labeled conformation exceeds its threshold, the whole conformation is removed from the training dataset.
 
 ### constrained method
 Set `"method": "constrained"` to use constrained MD as mean force calculator. Currently rid-kit only supports distance CV to use this method, also only `gmx` type is supported to perform constrained MD simulation. The other parameters is the same with `Exploration` step.
