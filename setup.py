@@ -18,7 +18,6 @@ setuptools.setup(
     author="Yanze Wang, Jiahao Fan",
     author_email="yanze039@mit.edu,jiahaofan@pku.edu.cn",
     use_scm_version={'write_to': 'rid/_version.py'},
-    version='{{VERSION_PLACEHOLDER}}',
     description="RiD package for enhanced sampling",
     setup_requires=['setuptools_scm'],
     long_description=readme,
