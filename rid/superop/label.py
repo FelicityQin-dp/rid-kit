@@ -16,7 +16,7 @@ from dflow.python import(
     OP,
     Slices,
 )
-from rid.utils import init_executor
+from rid.utils import init_executor, get_template_slice_config
 
 
 class Label(Steps):
@@ -134,6 +134,9 @@ def _label(
     prep_template_config = prep_config.pop('template_config')
     run_template_config = run_config.pop('template_config')
 
+    prep_slice_config = get_template_slice_config(prep_config)
+    run_slice_config = get_template_slice_config(run_config)
+
     prep_executor = init_executor(prep_config.pop('executor'))
     run_executor = init_executor(run_config.pop('executor'))
 
@@ -156,49 +159,15 @@ def _label(
     )
     label_steps.add(check_label_inputs)
 
-    prep_merge = False
-    if prep_executor is not None:
-        prep_merge = prep_executor.merge_sliced_step
-    if prep_merge:
-        prep_label = Step(
+    prep_label = Step(
         'prep-label',
         template=PythonOPTemplate(
             prep_label_op,
             python_packages = upload_python_package,
             retry_on_transient_error = retry_times,
             slices=Slices("{{item}}",
-                input_parameter=["task_name"],
-                input_artifact=["conf", "at"],
-                output_artifact=["task_path"]),
-            **prep_template_config,
-        ),
-        parameters={
-            "label_config": label_steps.inputs.parameters['label_config'],
-            "cv_config": label_steps.inputs.parameters['cv_config'],
-            "task_name": check_label_inputs.outputs.parameters['conf_tags']
-        },
-        artifacts={
-            "topology": label_steps.inputs.artifacts['topology'],
-            "conf": label_steps.inputs.artifacts['confs'],
-            "at": label_steps.inputs.artifacts['at'],
-            "cv_file": label_steps.inputs.artifacts['cv_file']
-        },
-        key = step_keys['prep_label']+"-{{item}}",
-        executor = prep_executor,
-        with_param=argo_range(argo_len(check_label_inputs.outputs.parameters['conf_tags'])),
-        when = "%s > 0" % (check_label_inputs.outputs.parameters["if_continue"]),
-        **prep_config
-    )
-    else:
-        prep_label = Step(
-        'prep-label',
-        template=PythonOPTemplate(
-            prep_label_op,
-            python_packages = upload_python_package,
-            retry_on_transient_error = retry_times,
-            slices=Slices("{{item}}",
-                group_size=10,
-                pool_size=1,
+                group_size=prep_slice_config["group_size"],
+                pool_size=prep_slice_config["pool_size"],
                 input_parameter=["task_name"],
                 input_artifact=["conf", "at"],
                 output_artifact=["task_path"]),
@@ -223,56 +192,18 @@ def _label(
     )
     label_steps.add(prep_label)
 
-    run_merge = False
-    if run_executor is not None:
-        run_merge = run_executor.merge_sliced_step
-    if run_merge:
-        run_label = Step(
+    run_label = Step(
         'run-label',
         template=PythonOPTemplate(
             run_label_op,
             python_packages = upload_python_package,
             retry_on_transient_error = retry_times,
             slices=Slices("{{item}}",
+                group_size=run_slice_config["group_size"],
+                pool_size=run_slice_config["pool_size"],
                 input_parameter=["task_name"],
                 input_artifact=["task_path","at"],
                 output_artifact=["plm_out","cv_forces","mf_info","mf_fig","md_log","trajectory"]),
-            **run_template_config,
-        ),
-        parameters={
-            "label_config": label_steps.inputs.parameters["label_config"],
-            "cv_config": label_steps.inputs.parameters['cv_config'],
-            "task_name": check_label_inputs.outputs.parameters['conf_tags'],
-            "tail": label_steps.inputs.parameters['tail']
-        },
-        artifacts={
-            "forcefield": label_steps.inputs.artifacts['forcefield'],
-            "task_path": prep_label.outputs.artifacts["task_path"],
-            "index_file": label_steps.inputs.artifacts['index_file'],
-            "dp_files": label_steps.inputs.artifacts['dp_files'],
-            "cv_file": label_steps.inputs.artifacts['cv_file'],
-            "inputfile": label_steps.inputs.artifacts['inputfile'],
-            "at": label_steps.inputs.artifacts['at']
-        },
-        key = step_keys['run_label']+"-{{item}}",
-        executor = run_executor,
-        with_param=argo_range(argo_len(check_label_inputs.outputs.parameters['conf_tags'])),
-        continue_on_success_ratio = 0.75,
-        **run_config
-    )
-    else:
-        run_label = Step(
-        'run-label',
-        template=PythonOPTemplate(
-            run_label_op,
-            python_packages = upload_python_package,
-            retry_on_transient_error = retry_times,
-            slices=Slices("{{item}}",
-                group_size=10,
-                pool_size=1,
-                input_parameter=["task_name"],
-                input_artifact=["task_path","at"],
-                output_artifact=["plm_out","cv_forces","mf_info","mf_fig","md_log", "trajectory"]),
             **run_template_config,
         ),
         parameters={
