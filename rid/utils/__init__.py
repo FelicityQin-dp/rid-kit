@@ -18,4 +18,5 @@ from rid.utils.set_config import (
     get_template_slice_config,
     DEFAULT_SLICE_GROUP_SIZE,
     DEFAULT_SLICE_POOL_SIZE,
+    normalize_std_threshold,
 )

@@ -41,7 +41,7 @@ class Label(Steps):
             "label_config": InputParameter(type=Dict),
             "cv_config": InputParameter(type=Dict),
             "tail": InputParameter(type=float, value=0.9),
-            "std_threshold": InputParameter(type=float, value=5.0),
+            "std_threshold": InputParameter(type=List[float], value=[5.0]),
             "block_tag" : InputParameter(type=str, value="")
         }        
         self._input_artifacts = {
