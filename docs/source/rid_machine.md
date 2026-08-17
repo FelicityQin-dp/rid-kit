@@ -80,29 +80,6 @@ Then the configuration is very easy, just configure different images to differen
 }
 ```
 
-### Label slice scheduling
-
-For label steps on pure k8s resources, you can tune dflow slice scheduling with `template_slice_config` inside a machine resource entry:
-
-```JSON
-"local_k8s_2": {
-    "template_config": {
-        "image": "pkufjhdocker/rid-gmx-plumed:stable"
-    },
-    "template_slice_config": {
-        "group_size": 10,
-        "pool_size": 2
-    }
-}
-```
-
-- `group_size`: number of label slice tasks packed into one execution unit
-- `pool_size`: number of slice tasks running concurrently on one execution unit
-
-These fields control dflow `Slices` scheduling for `prep-label` and `run-label`. They are different from Dispatcher `resources_dict.group_size`, which controls how many tasks are packed into one scheduler job on Slurm/Bohrium.
-
-If omitted, rid-kit defaults to `group_size=10` and `pool_size=1`.
-
 ### Bohrium example
 ```JSON
 {
