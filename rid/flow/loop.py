@@ -133,6 +133,7 @@ def _loop (
 ):    
     step_config = deepcopy(step_config)
     step_template_config = step_config.pop('template_config')
+    step_config.pop('template_slice_config', None)
     step_executor = init_executor(step_config.pop('executor'))
 
     recorder_step = Step(
@@ -360,6 +361,7 @@ def _rid(
 
     _step_config = deepcopy(step_config)
     step_template_config = _step_config.pop('template_config')
+    _step_config.pop('template_slice_config', None)
     step_executor = init_executor(_step_config.pop('executor'))
 
     prep_rid = Step(

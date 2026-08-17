@@ -247,6 +247,7 @@ def _first_run_block(
 
     train_config = deepcopy(train_config)
     train_template_config = train_config.pop('template_config')
+    train_config.pop('template_slice_config', None)
     train_executor = init_executor(train_config.pop('executor'))
     train = Step(
         "train",
@@ -276,6 +277,7 @@ def _first_run_block(
     
     model_devi_config = deepcopy(model_devi_config)
     model_devi_template_config = model_devi_config.pop('template_config')
+    model_devi_config.pop('template_slice_config', None)
     model_devi_executor = init_executor(model_devi_config.pop('executor'))
     deviation = Step(
         "ModelDeviation",
@@ -511,6 +513,7 @@ def _iter_block(
 
     adjust_lvl_config = deepcopy(adjust_lvl_config)
     adjust_lvl_template_config = adjust_lvl_config.pop('template_config')
+    adjust_lvl_config.pop('template_slice_config', None)
     adjust_lvl_executor = init_executor(adjust_lvl_config.pop('executor'))
 
     adjust_lvl = Step(
@@ -582,6 +585,7 @@ def _iter_block(
 
     train_config = deepcopy(train_config)
     train_template_config = train_config.pop('template_config')
+    train_config.pop('template_slice_config', None)
     train_executor = init_executor(train_config.pop('executor'))
     train = Step(
         "train",
@@ -611,6 +615,7 @@ def _iter_block(
     
     model_devi_config = deepcopy(model_devi_config)
     model_devi_template_config = model_devi_config.pop('template_config')
+    model_devi_config.pop('template_slice_config', None)
     model_devi_executor = init_executor(model_devi_config.pop('executor'))
     deviation = Step(
         "ModelDeviation",

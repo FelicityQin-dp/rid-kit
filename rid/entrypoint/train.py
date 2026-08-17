@@ -50,6 +50,7 @@ def train_rid(
     run_train_config = normalized_resources[tasks["run_train_config"]]
     run_train_config = deepcopy(run_train_config)
     train_template_config = run_train_config.pop('template_config')
+    run_train_config.pop('template_slice_config', None)
     train_executor = init_executor(run_train_config.pop('executor'))
     
     model_tags = []

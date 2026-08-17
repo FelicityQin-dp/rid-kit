@@ -113,6 +113,8 @@ def _mcmc(
     
     run_template_config = run_config.pop('template_config')
     plot_template_config = plot_config.pop('template_config')
+    run_config.pop('template_slice_config', None)
+    plot_config.pop('template_slice_config', None)
     run_executor = init_executor(run_config.pop('executor'))
     plot_executor = init_executor(plot_config.pop('executor'))
     

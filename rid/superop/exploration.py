@@ -126,6 +126,8 @@ def _exploration(
     run_config = deepcopy(run_config)
     prep_template_config = prep_config.pop('template_config')
     run_template_config = run_config.pop('template_config')
+    prep_config.pop('template_slice_config', None)
+    run_config.pop('template_slice_config', None)
     prep_executor = init_executor(prep_config.pop('executor'))
     run_executor = init_executor(run_config.pop('executor'))
     prep_merge = False
