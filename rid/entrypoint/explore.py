@@ -142,6 +142,7 @@ def explore_rid(
     _step_config = normalized_resources[tasks["workflow_steps_config"]]
     _step_config = deepcopy(_step_config)
     step_template_config = _step_config.pop('template_config')
+    _step_config.pop('template_slice_config', None)
     step_executor = init_executor(_step_config.pop('executor'))
     
     prep_rid = Step(

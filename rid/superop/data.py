@@ -94,6 +94,7 @@ def _gen_data(
     ):
     run_config = deepcopy(run_config)
     run_template_config = run_config.pop('template_config')
+    run_config.pop('template_slice_config', None)
     run_executor = init_executor(run_config.pop('executor'))
 
     collect_data = Step(

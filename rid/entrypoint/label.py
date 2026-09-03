@@ -16,7 +16,7 @@ from dflow.python import upload_packages
 from rid import SRC_ROOT
 upload_packages.append(SRC_ROOT)
 
-from rid.utils import normalize_resources
+from rid.utils import normalize_resources, normalize_std_threshold
 from rid.superop.label import Label
 from rid.op.prep_label import PrepLabel, CheckLabelInputs
 from rid.op.run_label import RunLabel
@@ -68,6 +68,12 @@ def label_rid(
     jdata = deepcopy(load_json(rid_config))
     cv_config = jdata["CV"]
     label_config = jdata["LabelMDConfig"]
+    
+    cv_dim = len(cv_config["angular_mask"])
+    std_threshold = normalize_std_threshold(
+        label_config["std_threshold"],
+        cv_dim,
+    )
     
     inputfiles = []
     if "inputfile" in jdata["ExploreMDConfig"]:
@@ -180,6 +186,7 @@ def label_rid(
             parameters={
                 "label_config": label_config,
                 "cv_config": cv_config,
+                "std_threshold": std_threshold,
                 "block_tag" : "000"
             },
         )

@@ -1,0 +1,26 @@
+# Minimal LAMMPS exploration input for rid-kit LAMMPS example.
+# Required outputs: out.dump, log.lammps, and PLUMED output plm.out.
+
+units           lj
+atom_style      atomic
+boundary        p p p
+
+read_data       conf.lmp
+
+pair_style      lj/cut 2.5
+pair_coeff      1 1 1.0 1.0 2.5
+
+neighbor        0.3 bin
+neigh_modify    delay 0 every 1 check yes
+
+timestep        0.002
+
+velocity        all create 1.0 12345
+
+fix             1 all nvt temp 1.0 1.0 0.1
+fix             plmd all plumed plumedfile plumed.dat outfile plm.out
+
+dump            1 all custom 50 out.dump id type x y z
+log             log.lammps
+
+run             1000

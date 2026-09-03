@@ -100,14 +100,20 @@ class MCMCRun(OP):
             pp_hist2d = np.zeros((1, len(xx), len(yy)))
             delta = 2.0 * np.pi / (bins-1)
         elif cv_type == "dis":
-            xx = np.linspace(0,10, bins)
-            yy = np.linspace(0,10, bins)
+            cv_lower_arr = np.array(cv_lower, dtype=float)
+            cv_upper_arr = np.array(cv_upper, dtype=float)
+            if proj_mode == "cv":
+                xx = np.linspace(cv_lower_arr[proj_cv_index[0]], cv_upper_arr[proj_cv_index[0]], bins)
+                yy = np.linspace(cv_lower_arr[proj_cv_index[1]], cv_upper_arr[proj_cv_index[1]], bins)
+            else:
+                xx = np.linspace(0,10, bins)
+                yy = np.linspace(0,10, bins)
             if proj_mode == "cv":
                 pp_hist = np.zeros((fd, len(xx)))
             elif proj_mode == "path":
                 pp_hist = np.zeros((2, len(xx)))
             pp_hist2d = np.zeros((1, len(xx), len(yy)))
-            delta = 10.0 / (bins-1)
+            delta = 1.0
         else:
             raise ValueError("Undefined cv type, only support 'dih' and 'dis' type")
         
@@ -126,7 +132,15 @@ class MCMCRun(OP):
                         
                     if proj_mode == "cv":
                         # project on 1D CV
-                        pp_hist_new = my_hist1d(pp, xx, delta, fd)
+                        pp_hist_new = np.zeros_like(pp_hist)
+                        for jj in range(fd):
+                            hist_1d, _ = np.histogram(
+                                pp[:, jj],
+                                bins=bins,
+                                range=(cv_lower_arr[jj], cv_upper_arr[jj]),
+                                density=True,
+                            )
+                            pp_hist_new[jj] = hist_1d
                         pp_hist = (pp_hist * ii + pp_hist_new) / (ii+1)
                         if not os.path.exists(mcmc_1cv_dir_name):
                             os.makedirs(mcmc_1cv_dir_name)
@@ -146,7 +160,17 @@ class MCMCRun(OP):
                         cv1 = proj_cv_index[0]
                         cv2 = proj_cv_index[1]
                         ##certain 2d
-                        pp_hist_new2d = my_hist2d(pp, xx, yy, delta, cv1, cv2)
+                        hist_2d, _, _ = np.histogram2d(
+                            pp[:, cv1],
+                            pp[:, cv2],
+                            bins=[bins, bins],
+                            range=[
+                                (cv_lower_arr[cv1], cv_upper_arr[cv1]),
+                                (cv_lower_arr[cv2], cv_upper_arr[cv2]),
+                            ],
+                            density=True,
+                        )
+                        pp_hist_new2d = hist_2d.reshape(1, bins, bins)
                         pp_hist2d = (pp_hist2d * ii + pp_hist_new2d) / (ii+1)
                         if ii == ns:
                             zz2d = np.transpose(-np.log(pp_hist2d+1e-10), (0,2,1))/beta

@@ -10,6 +10,7 @@ from dflow.python import (
     BigParameter
 )
 from rid.utils import load_json
+from rid.utils.set_config import normalize_std_threshold
 from rid.constants import model_tag_fmt, init_conf_gmx_name, init_conf_lmp_name,init_input_name, walker_tag_fmt
 
 
@@ -98,7 +99,7 @@ class PrepRiD(OP):
                 "numb_cluster_lower": int,
                 "max_selection": int,
                 "numb_cluster_threshold": int,
-                "std_threshold": float,
+                "std_threshold": List[float],
                 "dt": float,
                 "output_freq": float,
                 "slice_mode": str,
@@ -192,7 +193,10 @@ class PrepRiD(OP):
         cluster_threshold = selection_config.pop("cluster_threshold")
         cluster_threshold_list = [cluster_threshold for _ in range(numb_walkers)]
         
-        std_threshold = label_config["std_threshold"]
+        std_threshold = normalize_std_threshold(
+            label_config["std_threshold"],
+            len(angular_mask),
+        )
         
         if "type_map" in selection_config:
             type_map = selection_config["type_map"]

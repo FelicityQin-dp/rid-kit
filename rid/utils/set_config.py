@@ -1,8 +1,11 @@
-from typing import Dict
+from typing import Dict, List, Union
 from dflow.plugins.lebesgue import LebesgueExecutor
 from dflow.plugins.dispatcher import DispatcherExecutor
 from dflow import SlurmRemoteExecutor
 import os
+
+DEFAULT_SLICE_GROUP_SIZE = 10
+DEFAULT_SLICE_POOL_SIZE = 1
 
 
 def init_executor(
@@ -24,9 +27,42 @@ def init_executor(
         raise RuntimeError('unknown executor dict')   
 
 
+def get_template_slice_config(config_dict: Dict) -> Dict[str, int]:
+    """Extract dflow Slices scheduling options from a normalized resource dict."""
+    slice_config = config_dict.pop("template_slice_config", {}) or {}
+    group_size = int(slice_config.get("group_size", DEFAULT_SLICE_GROUP_SIZE))
+    pool_size = int(slice_config.get("pool_size", DEFAULT_SLICE_POOL_SIZE))
+    if group_size < 1:
+        raise ValueError("template_slice_config.group_size must be >= 1")
+    if pool_size < 1:
+        raise ValueError("template_slice_config.pool_size must be >= 1")
+    return {"group_size": group_size, "pool_size": pool_size}
+
+
+def normalize_std_threshold(
+        threshold: Union[float, int, List[Union[float, int]]],
+        cv_dim: int,
+    ) -> List[float]:
+    """Normalize label std thresholds to a per-CV list."""
+    if isinstance(threshold, (int, float)):
+        return [float(threshold)] * cv_dim
+    if isinstance(threshold, list):
+        if len(threshold) == 0:
+            raise ValueError("std_threshold list must not be empty")
+        if len(threshold) == 1:
+            return [float(threshold[0])] * cv_dim
+        if len(threshold) != cv_dim:
+            raise ValueError(
+                f"std_threshold length {len(threshold)} != cv_dim {cv_dim}"
+            )
+        return [float(value) for value in threshold]
+    raise TypeError("std_threshold must be a float or list of floats")
+
+
 def normalize_resources(config_dict: Dict):
     template_dict = {}
     template_dict["template_config"] = config_dict.get("template_config", {})
+    template_dict["template_slice_config"] = config_dict.get("template_slice_config", {})
     template_dict["executor"] = config_dict.get("executor", None)
     if template_dict["executor"] is None:
         assert ("image" in template_dict["template_config"].keys()) and \

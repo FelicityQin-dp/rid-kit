@@ -59,3 +59,4 @@ class Test_PrepRid(unittest.TestCase):
         self.assertEqual(len(op_out1["confs"]),2)
         self.assertEqual(len(op_out2["confs"]),2)
         self.assertEqual(len(op_out3["confs"]),2)
+        self.assertEqual(op_out1["std_threshold"], [2.0, 2.0])

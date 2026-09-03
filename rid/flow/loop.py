@@ -45,7 +45,7 @@ class ReinforcedDynamicsLoop(Steps):
             "weights": InputParameter(type=Optional[Union[np.ndarray, List]]),
             "max_selection": InputParameter(type=int),
             "numb_cluster_threshold": InputParameter(type=float, value=30),
-            "std_threshold": InputParameter(type=float, value=5.0),
+            "std_threshold": InputParameter(type=List[float], value=[5.0]),
             "dt": InputParameter(type=float, value=0.02),
             "output_freq": InputParameter(type=float, value=2500),
             "slice_mode": InputParameter(type=str, value="gmx"),
@@ -133,6 +133,7 @@ def _loop (
 ):    
     step_config = deepcopy(step_config)
     step_template_config = step_config.pop('template_config')
+    step_config.pop('template_slice_config', None)
     step_executor = init_executor(step_config.pop('executor'))
 
     recorder_step = Step(
@@ -360,6 +361,7 @@ def _rid(
 
     _step_config = deepcopy(step_config)
     step_template_config = _step_config.pop('template_config')
+    _step_config.pop('template_slice_config', None)
     step_executor = init_executor(_step_config.pop('executor'))
 
     prep_rid = Step(
